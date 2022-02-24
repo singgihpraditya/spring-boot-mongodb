@@ -40,7 +40,7 @@ public class BigFileController {
 	}
 
 	@PostMapping("/upload")
-	public ResponseEntity<Object>  uploadPDFFile(@RequestParam("created-by")String createdBy, @RequestParam("pdf-file") MultipartFile multipartFile) throws IOException {
+	public ResponseEntity<Object>  uploadPDFFile(@RequestParam("created-by")String createdBy, @RequestParam("file") MultipartFile multipartFile) throws IOException {
 		long startMillis = System.currentTimeMillis();
 		String hashCode = getHashCodeNumber();
 
