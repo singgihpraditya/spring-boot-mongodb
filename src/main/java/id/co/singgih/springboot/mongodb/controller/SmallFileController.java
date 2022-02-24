@@ -52,12 +52,14 @@ public class SmallFileController {
 		try {
 			String id = fileService.saveFile(hashCode, createdBy, multipartFile);
 			uploadFileResponse.setId(id);
-			response.setPayload(uploadFileResponse);
+			response.setFile(uploadFileResponse);
 			response.setStatus(Constants.SUCCESS);
 			return new ResponseEntity<>(response, HttpStatus.OK);
 		}
 		catch(Exception ex) {
 			logger.error(hashCode + "Failed upload file : "+ex.getMessage());
+			response.setStatus(Constants.FAILED);
+			response.setErrorMessage(ex.getMessage());
 			return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		finally {
@@ -79,12 +81,14 @@ public class SmallFileController {
 		try {
 			String id = fileService.saveFile(hashCode, uploadFileBase64Request);
 			uploadFileResponse.setId(id);
-			response.setPayload(uploadFileResponse);
+			response.setFile(uploadFileResponse);
 			response.setStatus(Constants.SUCCESS);
 			return new ResponseEntity<>(response, HttpStatus.OK);
 		}
 		catch(Exception ex) {
 			logger.error(hashCode + "Failed upload file : "+ex.getMessage());
+			response.setStatus(Constants.FAILED);
+			response.setErrorMessage(ex.getMessage());
 			return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		finally {
@@ -106,12 +110,14 @@ public class SmallFileController {
 		
 		try {
 			getFileBase64Response = fileService.getFileBase64ById(hashCode, id);
-			response.setPayload(getFileBase64Response);
+			response.setFile(getFileBase64Response);
 			response.setStatus(Constants.SUCCESS);
 			return new ResponseEntity<>(response, HttpStatus.OK);
 		}
 		catch(Exception ex) {
 			logger.error(hashCode + "Failed get file : "+ex.getMessage());
+			response.setStatus(Constants.FAILED);
+			response.setErrorMessage(ex.getMessage());
 			return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		finally {

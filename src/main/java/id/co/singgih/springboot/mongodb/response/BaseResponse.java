@@ -10,6 +10,6 @@ public class BaseResponse<T extends Object> {
 	private String status = "";
 	@JsonProperty("error_message")
 	private String errorMessage  = "";
-	@JsonProperty("payload")
-	private T payload;
+	@JsonProperty("file")
+	private T file;
 }
