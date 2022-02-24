@@ -1,5 +1,6 @@
 package id.co.singgih.springboot.mongodb.service;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Base64;
 import java.util.Date;
@@ -20,6 +21,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.client.gridfs.model.GridFSFile;
 
+import id.co.singgih.springboot.mongodb.request.UploadFileBase64Request;
 import id.co.singgih.springboot.mongodb.response.GetFileBase64Response;
 import id.co.singgih.springboot.mongodb.util.Constants;
 
@@ -66,5 +68,25 @@ public class UsingGFSFileService {
 		getFileBase64Response.setFileSize(file.getMetadata().get("fileSize")==null?null:Long.parseLong(file.getMetadata().get("fileSize").toString()));
 		getFileBase64Response.setBase64image(base64Image);
 		return getFileBase64Response;
+	}
+
+	public String saveFile(String hashCode, UploadFileBase64Request uploadFileBase64Request) {
+		String fileName = uploadFileBase64Request.getFileName();
+		Long size = uploadFileBase64Request.getFileSize();
+		logger.debug(hashCode + "Try to save file :{}, size :{}", fileName,size);
+		
+		DBObject metaData = new BasicDBObject();
+		metaData.put("createdBy", uploadFileBase64Request.getCreatedBy());
+		metaData.put("fileName", fileName);
+		metaData.put("fileSize", size);
+		metaData.put("contentType", uploadFileBase64Request.getContentType());
+		metaData.put("createdDate", new Date());
+		byte[] byteImage = Base64.getDecoder().decode(uploadFileBase64Request.getBase64image());
+		InputStream inputStream = new ByteArrayInputStream(byteImage);
+		ObjectId objectId = gridFsTemplate.store(inputStream, uploadFileBase64Request.getFileName(), uploadFileBase64Request.getContentType(), metaData);
+
+		String id = objectId.toString();
+		logger.debug(hashCode + "Save file :{}, id :{} success", fileName,id);
+		return id;
 	}
 }

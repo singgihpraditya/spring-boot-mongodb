@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import id.co.singgih.springboot.mongodb.entity.SmallFile;
 import id.co.singgih.springboot.mongodb.repository.SmallFileRepository;
+import id.co.singgih.springboot.mongodb.request.UploadFileBase64Request;
 import id.co.singgih.springboot.mongodb.response.GetFileBase64Response;
 import id.co.singgih.springboot.mongodb.util.Constants;
 
@@ -54,5 +55,21 @@ public class UsingBSONFileService {
 		getFileBase64Response.setBase64image(base64Image);
 		getFileBase64Response.setContentType(file.getContentType());
 		return getFileBase64Response;
+	}
+
+	public String saveFile(String hashCode, UploadFileBase64Request uploadFileBase64Request) {
+		logger.debug(hashCode + "Try to save file :{}, size :{}", uploadFileBase64Request.getFileName(), uploadFileBase64Request.getFileSize());
+		
+		SmallFile file = new SmallFile();
+		file.setCreatedBy(uploadFileBase64Request.getCreatedBy());
+		file.setCreatedDate(new Date());
+		file.setFileName(uploadFileBase64Request.getFileName());
+		file.setContentType(uploadFileBase64Request.getContentType());
+		file.setFileSize(uploadFileBase64Request.getFileSize());
+		file.setImage(new Binary(BsonBinarySubType.BINARY, Base64.getDecoder().decode(uploadFileBase64Request.getBase64image())));
+		file = fileRepository.insert(file);
+		String id = file.getId();
+		logger.debug(hashCode + "Save file :{}, id :{} success", uploadFileBase64Request.getFileName(),id);
+		return id;
 	}
 }
