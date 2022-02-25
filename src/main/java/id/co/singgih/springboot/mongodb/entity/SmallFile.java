@@ -16,7 +16,7 @@ public class SmallFile {
 	private String fileName;
 	private Long fileSize;
 	private String contentType;
-	private Binary image;
+	private Binary binaryFile;
 	private String createdBy;
 	private Date createdDate;
 }

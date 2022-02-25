@@ -12,5 +12,5 @@ public class GetFileBase64Response {
 	private String createdBy;
 	private Date createdDate;
 	private String contentType;
-	private String base64image;
+	private String base64File;
 }

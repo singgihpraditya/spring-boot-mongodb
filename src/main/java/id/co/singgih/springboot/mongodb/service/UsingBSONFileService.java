@@ -35,7 +35,8 @@ public class UsingBSONFileService {
 		file.setFileName(fileName);
 		file.setContentType(multipartFile.getContentType());
 		file.setFileSize(size);
-		file.setImage(new Binary(BsonBinarySubType.BINARY, multipartFile.getBytes()));
+		
+		file.setBinaryFile(new Binary(BsonBinarySubType.BINARY, multipartFile.getBytes()));
 		file = fileRepository.insert(file);
 		String id = file.getId();
 		logger.debug(hashCode + "Save file :{}, id :{} success", fileName,id);
@@ -45,28 +46,30 @@ public class UsingBSONFileService {
 	public GetFileBase64Response getFileBase64ById(String hashCode, String id) throws Exception {
 		logger.debug(hashCode + "Get file with id :{} ", id);
 		SmallFile file =  fileRepository.findById(id).get();
-		String base64Image = Base64.getEncoder().encodeToString(file.getImage().getData());
+		String base64File = Base64.getEncoder().encodeToString(file.getBinaryFile().getData());
 		GetFileBase64Response getFileBase64Response = new GetFileBase64Response();
 		getFileBase64Response.setId(id);
 		getFileBase64Response.setCreatedBy(file.getCreatedBy());
 		getFileBase64Response.setCreatedDate(file.getCreatedDate());
 		getFileBase64Response.setFileName(file.getFileName());
 		getFileBase64Response.setFileSize(file.getFileSize());
-		getFileBase64Response.setBase64image(base64Image);
+		getFileBase64Response.setBase64File(base64File);
 		getFileBase64Response.setContentType(file.getContentType());
 		return getFileBase64Response;
 	}
 
 	public String saveFile(String hashCode, UploadFileBase64Request uploadFileBase64Request) {
-		logger.debug(hashCode + "Try to save file :{}, size :{}", uploadFileBase64Request.getFileName(), uploadFileBase64Request.getFileSize());
+		byte[] byteArrayFile = Base64.getDecoder().decode(uploadFileBase64Request.getBase64File());
+		
+		logger.debug(hashCode + "Try to save file :{}, size :{}", uploadFileBase64Request.getFileName(), byteArrayFile.length);
 		
 		SmallFile file = new SmallFile();
+		file.setFileSize(new Long(byteArrayFile.length));
 		file.setCreatedBy(uploadFileBase64Request.getCreatedBy());
 		file.setCreatedDate(new Date());
 		file.setFileName(uploadFileBase64Request.getFileName());
 		file.setContentType(uploadFileBase64Request.getContentType());
-		file.setFileSize(uploadFileBase64Request.getFileSize());
-		file.setImage(new Binary(BsonBinarySubType.BINARY, Base64.getDecoder().decode(uploadFileBase64Request.getBase64image())));
+		file.setBinaryFile(new Binary(BsonBinarySubType.BINARY, byteArrayFile));
 		file = fileRepository.insert(file);
 		String id = file.getId();
 		logger.debug(hashCode + "Save file :{}, id :{} success", uploadFileBase64Request.getFileName(),id);

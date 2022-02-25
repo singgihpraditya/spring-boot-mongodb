@@ -57,8 +57,8 @@ public class UsingGFSFileService {
 		logger.debug(hashCode + "Get file with id :{} ", id);
 		GridFSFile file = gridFsTemplate.findOne(new Query(Criteria.where("_id").is(id)));
 		InputStream inputStream = operations.getResource(file).getInputStream();
-		byte[] byteImage = StreamUtils.copyToByteArray(inputStream);
-		String base64Image = Base64.getEncoder().encodeToString(byteImage);
+		byte[] byteArrayFile = StreamUtils.copyToByteArray(inputStream);
+		String base64File = Base64.getEncoder().encodeToString(byteArrayFile);
 		GetFileBase64Response getFileBase64Response = new GetFileBase64Response();
 		getFileBase64Response.setId(id);
 		getFileBase64Response.setContentType(file.getMetadata().get("contentType")==null?null:file.getMetadata().get("contentType").toString());
@@ -66,23 +66,23 @@ public class UsingGFSFileService {
 		getFileBase64Response.setCreatedDate(file.getMetadata().get("createdDate")==null?null:(Date)file.getMetadata().get("createdDate"));
 		getFileBase64Response.setFileName(file.getMetadata().get("fileName")==null?null:file.getMetadata().get("fileName").toString());
 		getFileBase64Response.setFileSize(file.getMetadata().get("fileSize")==null?null:Long.parseLong(file.getMetadata().get("fileSize").toString()));
-		getFileBase64Response.setBase64image(base64Image);
+		getFileBase64Response.setBase64File(base64File);
 		return getFileBase64Response;
 	}
 
 	public String saveFile(String hashCode, UploadFileBase64Request uploadFileBase64Request) {
 		String fileName = uploadFileBase64Request.getFileName();
-		Long size = uploadFileBase64Request.getFileSize();
-		logger.debug(hashCode + "Try to save file :{}, size :{}", fileName,size);
+		byte[] byteArrayFile = Base64.getDecoder().decode(uploadFileBase64Request.getBase64File());
+		logger.debug(hashCode + "Try to save file :{}, size :{}", fileName, byteArrayFile.length);
 		
 		DBObject metaData = new BasicDBObject();
 		metaData.put("createdBy", uploadFileBase64Request.getCreatedBy());
 		metaData.put("fileName", fileName);
-		metaData.put("fileSize", size);
+		metaData.put("fileSize", byteArrayFile.length);
 		metaData.put("contentType", uploadFileBase64Request.getContentType());
 		metaData.put("createdDate", new Date());
-		byte[] byteImage = Base64.getDecoder().decode(uploadFileBase64Request.getBase64image());
-		InputStream inputStream = new ByteArrayInputStream(byteImage);
+		
+		InputStream inputStream = new ByteArrayInputStream(byteArrayFile);
 		ObjectId objectId = gridFsTemplate.store(inputStream, uploadFileBase64Request.getFileName(), uploadFileBase64Request.getContentType(), metaData);
 
 		String id = objectId.toString();
