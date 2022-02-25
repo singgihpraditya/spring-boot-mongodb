@@ -1,6 +1,8 @@
 package id.co.singgih.springboot.mongodb.controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,19 +42,17 @@ public class SmallFileController {
 	}
 
 	@PostMapping("/upload")
-	public ResponseEntity<Object>  uploadFile(@RequestParam("created-by")String createdBy, @RequestParam("file") MultipartFile multipartFile) throws IOException {
+	public ResponseEntity<Object>  uploadFile(@RequestParam("created-by")String createdBy, @RequestParam("files") MultipartFile[] multipartFiles) throws IOException {
 		long startMillis = System.currentTimeMillis();
 		String hashCode = getHashCodeNumber();
 
 		logger.debug(hashCode + "---- Start Upload File ----");
 		
 		BaseResponse<UploadFileResponse> response = new BaseResponse<UploadFileResponse>();
-		UploadFileResponse uploadFileResponse = new UploadFileResponse();
-		
+	
 		try {
-			String id = fileService.saveFile(hashCode, createdBy, multipartFile);
-			uploadFileResponse.setId(id);
-			response.setFile(uploadFileResponse);
+			List<UploadFileResponse> uploadFileResponses = fileService.saveFile(hashCode, createdBy, multipartFiles);
+			response.setFiles(uploadFileResponses);
 			response.setStatus(Constants.SUCCESS);
 			return new ResponseEntity<>(response, HttpStatus.OK);
 		}
@@ -76,12 +76,9 @@ public class SmallFileController {
 		logger.debug(hashCode + "---- Start Upload File ----");
 		
 		BaseResponse<UploadFileResponse> response = new BaseResponse<UploadFileResponse>();
-		UploadFileResponse uploadFileResponse = new UploadFileResponse();
-		
 		try {
-			String id = fileService.saveFile(hashCode, uploadFileBase64Request);
-			uploadFileResponse.setId(id);
-			response.setFile(uploadFileResponse);
+			List<UploadFileResponse> uploadFileResponses = fileService.saveFile(hashCode, uploadFileBase64Request);
+			response.setFiles(uploadFileResponses);
 			response.setStatus(Constants.SUCCESS);
 			return new ResponseEntity<>(response, HttpStatus.OK);
 		}
@@ -106,10 +103,9 @@ public class SmallFileController {
 		logger.debug(hashCode + "---- Get Upload File (BASE64) ----");
 		
 		BaseResponse<GetFileBase64Response> response = new BaseResponse<GetFileBase64Response>();
-		GetFileBase64Response getFileBase64Response = new GetFileBase64Response();
 		
 		try {
-			getFileBase64Response = fileService.getFileBase64ById(hashCode, id);
+			GetFileBase64Response getFileBase64Response = fileService.getFileBase64ById(hashCode, id);
 			response.setFile(getFileBase64Response);
 			response.setStatus(Constants.SUCCESS);
 			return new ResponseEntity<>(response, HttpStatus.OK);
